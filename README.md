@@ -32,7 +32,7 @@ docker swarm init --advertise-addr $(hostname -i | awk '{print $1}')
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/yourusername/minio-site-replication.git
+   git clone https://github.com/abdoul-sow/minio-site-replication.git
    cd minio-site-replication/deploy/site-a
    ```
 
@@ -111,7 +111,7 @@ docker swarm init --advertise-addr $(hostname -i | awk '{print $1}')
 
 1. **Clone the repository (if not already done)**
    ```bash
-   git clone https://github.com/yourusername/minio-site-replication.git
+   git clone https://github.com/abdoul-sow/minio-site-replication.git
    cd minio-site-replication/deploy/site-b
    ```
 
