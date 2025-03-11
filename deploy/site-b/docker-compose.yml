@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+    minio:
+        environment:
+            MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minio}
+            MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-minio}
+            MINIO_BROWSER_REDIRECT_URL: https://${CONSOLE_DOMAIN}
+        command: 'server /data --console-address ":9001"'
+        image: minio/minio:${MINIO_RELEASE:-latest}
+        volumes:
+          - ${VOLUME_PATH:?err}/minio-data:/data
+        restart: always
+        #ports:
+        #  - 443:9000
+        #  - 8443:9001
+        healthcheck:
+          test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+          interval: 30s
+          timeout: 20s
+          retries: 3

@@ -1,0 +1,72 @@
+version: '3.8'
+
+services:
+    traefik:
+        command:
+          - "--log.level=DEBUG"
+          - "--api.insecure=true"
+          - "--providers.docker=true"
+          - "--providers.docker.exposedByDefault=false"
+          - "--providers.docker.swarmMode=true"
+          - "--providers.file.directory=/config"
+          - "--providers.file.watch=true"
+          - "--entrypoints.http.address=:80"
+          - "--entrypoints.http.http.redirections.entryPoint.to=https"
+          - "--entrypoints.http.http.redirections.entryPoint.scheme=https"
+          - "--entrypoints.https.address=:443"
+          - "--certificatesresolvers.letsencrypt.acme.httpchallenge=true"
+          - "--certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=http"
+          - "--certificatesresolvers.letsencrypt.acme.email=postmaster@${API_DOMAIN:?err}"
+          - "--certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json"
+        deploy:
+            mode: replicated
+            replicas: 1
+            placement:
+                constraints: [node.role == manager]
+        image: traefik:v2.11.9
+        user: "root"
+        restart: always
+        ports:
+          - ${TRAEFIK_HTTP_PUBLISHED_PORT:-80}:80
+          - ${TRAEFIK_HTTPS_PUBLISHED_PORT:-443}:443
+          - ${TRAEFIK_DASHBOARD_PUBLISHED_PORT:-8080}:8080
+        volumes:
+          # So that Traefik can listen to the Docker events
+          - /var/run/docker.sock:/var/run/docker.sock:ro
+          - ${VOLUME_PATH:?err}/traefik/certificates:/certificates
+          - ${VOLUME_PATH:?err}/traefik/config/certificates.yaml:/config/certificates.yaml
+          - ${VOLUME_PATH:?err}/traefik/letsencrypt:/letsencrypt
+
+    minio:
+        deploy:
+            labels:
+              - "traefik.enable=true"
+              - "traefik.http.routers.${PROJECT_NAME:-minio}-api.rule=Host(`${API_DOMAIN:?err}`)"
+              - "traefik.http.routers.${PROJECT_NAME:-minio}-api.service=${PROJECT_NAME:-minio}-api"
+              - "traefik.http.routers.${PROJECT_NAME:-minio}-api.entrypoints=https"
+              - "traefik.http.routers.${PROJECT_NAME:-minio}-api.tls=true"
+              #- "traefik.http.routers.${PROJECT_NAME:-minio}-api.tls.certResolver=letsencrypt"
+              - "traefik.http.services.${PROJECT_NAME:-minio}-api.loadbalancer.server.port=9000"
+
+              - "traefik.http.routers.${PROJECT_NAME:-minio}-console.rule=Host(`${CONSOLE_DOMAIN:?err}`)"
+              - "traefik.http.routers.${PROJECT_NAME:-minio}-console.service=${PROJECT_NAME:-minio}-console"
+              - "traefik.http.routers.${PROJECT_NAME:-minio}-console.entrypoints=https"
+              - "traefik.http.routers.${PROJECT_NAME:-minio}-console.tls=true"
+              #- "traefik.http.routers.${PROJECT_NAME:-minio}-console.tls.certResolver=letsencrypt"
+              - "traefik.http.services.${PROJECT_NAME:-minio}-console.loadbalancer.server.port=9001"
+
+        labels:
+          - "traefik.enable=true"
+          - "traefik.http.routers.${PROJECT_NAME:-minio}-api.rule=Host(`${API_DOMAIN:?err}`)"
+          - "traefik.http.routers.${PROJECT_NAME:-minio}-api.service=${PROJECT_NAME:-minio}-api"
+          - "traefik.http.routers.${PROJECT_NAME:-minio}-api.entrypoints=https"
+          - "traefik.http.routers.${PROJECT_NAME:-minio}-api.tls=true"
+          #- "traefik.http.routers.${PROJECT_NAME:-minio}-api.tls.certResolver=letsencrypt"
+          - "traefik.http.services.${PROJECT_NAME:-minio}-api.loadbalancer.server.port=9000"
+
+          - "traefik.http.routers.${PROJECT_NAME:-minio}-console.rule=Host(`${CONSOLE_DOMAIN:?err}`)"
+          - "traefik.http.routers.${PROJECT_NAME:-minio}-console.service=${PROJECT_NAME:-minio}-console"
+          - "traefik.http.routers.${PROJECT_NAME:-minio}-console.entrypoints=https"
+          - "traefik.http.routers.${PROJECT_NAME:-minio}-console.tls=true"
+          #- "traefik.http.routers.${PROJECT_NAME:-minio}-console.tls.certResolver=letsencrypt"
+          - "traefik.http.services.${PROJECT_NAME:-minio}-console.loadbalancer.server.port=9001"
