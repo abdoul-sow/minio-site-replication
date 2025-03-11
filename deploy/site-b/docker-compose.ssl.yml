@@ -16,7 +16,7 @@ services:
           - "--entrypoints.https.address=:443"
           - "--certificatesresolvers.letsencrypt.acme.httpchallenge=true"
           - "--certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=http"
-          - "--certificatesresolvers.letsencrypt.acme.email=postmaster@${EMAIL_DOMAIN:?err}"
+          - "--certificatesresolvers.letsencrypt.acme.email=postmaster@${API_DOMAIN:?err}"
           - "--certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json"
         deploy:
             mode: replicated
@@ -45,14 +45,14 @@ services:
               - "traefik.http.routers.${PROJECT_NAME:-minio}-api.service=${PROJECT_NAME:-minio}-api"
               - "traefik.http.routers.${PROJECT_NAME:-minio}-api.entrypoints=https"
               - "traefik.http.routers.${PROJECT_NAME:-minio}-api.tls=true"
-              # - "traefik.http.routers.${PROJECT_NAME:-minio}-api.tls.certResolver=letsencrypt"
+              #- "traefik.http.routers.${PROJECT_NAME:-minio}-api.tls.certResolver=letsencrypt"
               - "traefik.http.services.${PROJECT_NAME:-minio}-api.loadbalancer.server.port=9000"
 
               - "traefik.http.routers.${PROJECT_NAME:-minio}-console.rule=Host(`${CONSOLE_DOMAIN:?err}`)"
               - "traefik.http.routers.${PROJECT_NAME:-minio}-console.service=${PROJECT_NAME:-minio}-console"
               - "traefik.http.routers.${PROJECT_NAME:-minio}-console.entrypoints=https"
               - "traefik.http.routers.${PROJECT_NAME:-minio}-console.tls=true"
-              # - "traefik.http.routers.${PROJECT_NAME:-minio}-console.tls.certResolver=letsencrypt"
+              #- "traefik.http.routers.${PROJECT_NAME:-minio}-console.tls.certResolver=letsencrypt"
               - "traefik.http.services.${PROJECT_NAME:-minio}-console.loadbalancer.server.port=9001"
 
         labels:
@@ -61,12 +61,12 @@ services:
           - "traefik.http.routers.${PROJECT_NAME:-minio}-api.service=${PROJECT_NAME:-minio}-api"
           - "traefik.http.routers.${PROJECT_NAME:-minio}-api.entrypoints=https"
           - "traefik.http.routers.${PROJECT_NAME:-minio}-api.tls=true"
-          # - "traefik.http.routers.${PROJECT_NAME:-minio}-api.tls.certResolver=letsencrypt"
+          #- "traefik.http.routers.${PROJECT_NAME:-minio}-api.tls.certResolver=letsencrypt"
           - "traefik.http.services.${PROJECT_NAME:-minio}-api.loadbalancer.server.port=9000"
 
           - "traefik.http.routers.${PROJECT_NAME:-minio}-console.rule=Host(`${CONSOLE_DOMAIN:?err}`)"
           - "traefik.http.routers.${PROJECT_NAME:-minio}-console.service=${PROJECT_NAME:-minio}-console"
           - "traefik.http.routers.${PROJECT_NAME:-minio}-console.entrypoints=https"
           - "traefik.http.routers.${PROJECT_NAME:-minio}-console.tls=true"
-          # - "traefik.http.routers.${PROJECT_NAME:-minio}-console.tls.certResolver=letsencrypt"
+          #- "traefik.http.routers.${PROJECT_NAME:-minio}-console.tls.certResolver=letsencrypt"
           - "traefik.http.services.${PROJECT_NAME:-minio}-console.loadbalancer.server.port=9001"

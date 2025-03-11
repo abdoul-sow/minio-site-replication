@@ -11,7 +11,7 @@ services:
         volumes:
           - ${VOLUME_PATH:?err}/minio-data:/data
         restart: always
-        #ports:
+        # ports:
         #  - 443:9000
         #  - 8443:9001
         healthcheck:
